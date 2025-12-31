@@ -1,4 +1,4 @@
-# Roadmap: HR Data Import & Validation Tool
+# Roadmap: Databuddy HR
 
 This roadmap outlines the phases and key deliverables for building the HR Data Import & Validation Tool. It aims to provide enough structure to guide development while staying lightweight and easy to follow.
 
