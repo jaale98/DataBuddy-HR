@@ -1,42 +1,53 @@
 # Databuddy HR — Technical Design Document (MVP)
 
 ## 1) Purpose
-Databuddy HR is a **pre-ingestion data validation and correction tool** for HR employee census imports. It accepts **CSV/XLSX**, validates against a **fixed employee schema**, enables **interactive fixes (cell + column bulk actions)**, and outputs either:
-- a **corrected export file**, or
-- a **pass confirmation** when no errors remain.
 
-No HRIS or database writeback is included in the MVP.
+Databuddy HR is a **pre-ingestion data validation and correction tool** for HR employee census files.  
+It accepts **CSV/XLSX uploads**, validates them against a **fixed employee schema**, allows **interactive cell and bulk corrections**, and produces either:
+
+- a **corrected CSV export**, or  
+- a **pass confirmation** when no blocking issues remain.
+
+**No data is persisted beyond the lifetime of the API process.**  
+If the service stops, all uploaded data and job state are discarded.
 
 ---
 
 ## 2) Users and Operating Model
 
-**Primary users**
+### Primary users
 - HR Operations
 - Benefits Operations
 - Payroll administrators
 - Implementation / onboarding specialists
 
-**Primary workflow**
-1. Upload file (CSV/XLSX)
-2. System validates structure and content
-3. User reviews and fixes errors in UI
-4. User downloads corrected file or receives “all clear” confirmation
+### Operating assumptions (MVP)
+- Single active user at a time
+- Single active import job at a time
+- No authentication or authorization
+- No resumability after process restart
 
 ---
 
 ## 3) Input / Output Contracts
 
 ### Supported inputs
-- `.csv` (UTF-8; delimiter handling fixed for MVP)
-- `.xlsx` (first sheet only)
+- `.csv` (UTF-8)
+- `.xlsx` (first worksheet only)
 
 ### Output
-- `.csv` (canonical export format)
+- `.csv` (canonical schema, normalized headers)
 
-### File size constraints (MVP)
-- Target: up to ~50k rows and ~25 columns
-- In-memory processing with guardrails; streaming/chunking optional but not required
+### File size and row limits (hard-enforced)
+- **Maximum rows:** 50,000  
+- **Maximum file size:** 10 MB  
+
+Files exceeding either limit are **rejected immediately on upload** with a clear, user-facing error message.
+
+Rationale:
+- Fits comfortably in memory with Pandas
+- Avoids UI and pagination performance degradation
+- Keeps validation and export synchronous
 
 ---
 
@@ -58,11 +69,19 @@ No HRIS or database writeback is included in the MVP.
 ### Column handling rules
 - Header matching is case-insensitive
 - Canonical column names enforced on export
-- Unknown columns flagged as warnings with option to drop
+- Unknown columns are flagged as warnings with option to drop
 
 ---
 
 ## 5) Validation Model
+
+### Validation scope
+Validation runs **in full**:
+- On initial upload
+- After any cell edit
+- After any bulk action
+
+Incremental validation is explicitly **out of scope** for MVP.
 
 ### Error classes
 
@@ -70,7 +89,8 @@ No HRIS or database writeback is included in the MVP.
 - Missing required column
 - Duplicate headers
 - Unsupported file type
-- Empty file or no data rows
+- Empty file / no data rows
+- File exceeds size or row limits
 
 **Cell-level**
 - Required field empty
@@ -80,23 +100,40 @@ No HRIS or database writeback is included in the MVP.
 
 **Row-level**
 - Duplicate `employee_id`
-- Invalid date logic (e.g., `hire_date` in the future)
+- Invalid date logic (e.g., hire date in the future)
 
 ### Validation output (conceptual)
 Each issue includes:
-- `severity`: `error` | `warning`
+- `severity`: `error | warning`
 - `type`: machine-readable identifier
-- `location`: row index + column (when applicable)
-- `message`: user-facing description
+- `row_id`: stable row identifier
+- `column`: optional
+- `message`: user-facing explanation
 - `suggestion`: optional remediation hint
 
 ---
 
-## 6) Correction and Bulk Actions
+## 6) Dataset and Identity Model
+
+### Stable row identity
+- A synthetic `row_id` is generated **on ingest**
+- `row_id` is independent of dataframe index
+- Used consistently for:
+  - validation issues
+  - pagination
+  - edit and bulk action targeting
+
+Row insertion and deletion are **out of scope** for MVP.
+
+---
+
+## 7) Corrections and Bulk Actions
 
 ### Cell-level edits
 - Inline edit of a single cell
-- Triggers re-validation of the affected cell and row
+- Payload references `{ row_id, column, value }`
+- Patch is **applied immediately** to the working dataset on disk
+- Full revalidation runs synchronously
 
 ### Column-level bulk actions (MVP)
 - Replace value (`"foo"` → `"bar"`)
@@ -108,47 +145,91 @@ Each issue includes:
 - Map uploaded headers to canonical schema headers
 - Drop unknown columns
 
-All transformations are applied to a working dataset and recorded internally as a transformation plan.
+No transformation history is persisted beyond process memory.
 
 ---
 
-## 7) Architecture
+## 8) Architecture (Conceptual)
 
 ### Frontend
-- React (simple setup; Vite or equivalent)
+- React (Vite or equivalent)
 - Minimal dependencies
-- Key screens:
-  1. Upload and schema matching
-  2. Validation results with editable grid
-  3. Export / success confirmation
+- Grid supports **offset/limit pagination**
+- Sorting:
+  - Stable by original file row order
+  - No user-driven sorting in MVP
 
 ### Backend
-- Python with FastAPI
-- Pandas for parsing and transformation
+- Python + FastAPI
+- Pandas for parsing, transformation, and export
 - Pydantic for schema definition and validation helpers
 
-### Storage
-- Ephemeral, job-based storage
-- Each upload creates a `job_id`
-- Data retained until TTL expiration or manual cleanup
+### Validation module
+- Pure Python module
+- No knowledge of:
+  - file storage
+  - API layer
+  - job lifecycle
+- Input: dataframe + schema rules
+- Output: list of validation issues
 
-### Data flow
-1. Upload → parse → normalize headers → validate
-2. User edits / bulk actions → targeted re-validation
-3. Export corrected dataset
+### Storage (ephemeral)
+- Local disk only
+- Directory layout:
+  /storage/
+    /uploads/
+      original.csv
+    /working/
+      working.csv
+    /exports/
+      output.csv
+
+- Files deleted when:
+- job is explicitly cleaned up, or
+- API process stops
+
+No database or external storage systems are used in MVP.
 
 ---
 
-## 8) API Surface (MVP)
+## 9) Data Flow
+
+1. Upload file
+2. Validate size and row limits
+3. Parse into dataframe
+4. Generate `row_id`
+5. Normalize headers
+6. Run full validation
+7. Persist working dataset to disk
+8. User applies edits or bulk actions
+9. Backend applies patches immediately
+10. Full revalidation
+11. Export generates CSV synchronously from working dataset
+
+---
+
+## 10) API Surface (MVP)
 
 ### Create job
 `POST /api/jobs`
 - Multipart file upload
-- Returns `job_id`, schema status, validation summary, issues list
+- Rejects if another job is active
+- Returns:
+- job metadata
+- validation summary
+- issues list
 
 ### Get job state
 `GET /api/jobs/{job_id}`
-- Returns dataset metadata and validation status
+- Returns:
+- pagination metadata
+- validation summary
+- current issues
+
+### Get paginated rows
+`GET /api/jobs/{job_id}/rows?offset=&limit=`
+- Returns slice of working dataset
+- Order is stable and deterministic
 
 ### Apply cell edits
 `POST /api/jobs/{job_id}/edits`
@@ -162,79 +243,62 @@ All transformations are applied to a working dataset and recorded internally as 
 
 ### Export corrected data
 `GET /api/jobs/{job_id}/export`
-- Returns corrected CSV file
+- Returns corrected CSV
+- Synchronous
 
-### Cleanup (optional)
+### Cleanup
 `DELETE /api/jobs/{job_id}`
+- Deletes all stored files
+- Frees system for next upload
 
 ---
 
-## 9) Key Data Structures
-
-### Dataset representation
-- Original (raw) dataframe
-- Working dataframe with applied transformations
-- Stable `row_id` independent of row index
-
-### Validation index
-- Issues keyed by `row_id`, `column`, and `type`
-- Enables fast incremental updates on edits
-
----
-
-## 10) Non-Functional Requirements
+## 11) Non-Functional Requirements
 
 ### Performance
-- Initial validation completes within seconds for typical census sizes
-- Incremental re-validation on edits where possible
+- Upload + initial validation completes in seconds for typical census sizes
+- Pagination prevents full dataset transfer to browser
 
 ### Security
-- File size and type validation
-- No long-term persistence of PII
+- Strict file type, size, and row validation
+- No persistence of PII beyond process lifetime
 - TLS assumed at deployment
-- Authentication optional for MVP
 
 ### Reliability
 - Deterministic validation and export behavior
-- Clear failure messages for invalid inputs
+- Clear, immediate errors on invalid inputs
+- Single active job enforced with backend guard
 
 ### Observability
-- Basic server logging for job lifecycle and validation timing
+- Basic logging for:
+- job lifecycle
+- validation duration
+- export timing
 
 ---
 
-## 11) Out of Scope (MVP)
-- HRIS or payroll integrations
+## 12) Out of Scope (MVP)
+
 - Database persistence
-- Multi-tenant accounts or RBAC
+- Multi-user support
+- Authentication / RBAC
+- Resumable jobs
+- Incremental validation
+- Row insertion/deletion
 - Custom schema builder
-- AI-assisted suggestions
-- Audit reports beyond corrected export
-
----
-
-## 12) Suggested Repository Layout
-
-/backend
-app/main.py
-app/schemas.py
-app/validation/
-app/transforms/
-app/storage/
-
-/frontend
-src/pages/Upload.tsx
-src/pages/ReviewFix.tsx
-src/pages/Export.tsx
-src/components/ErrorTable.tsx
-src/components/EditGrid.tsx
+- HRIS integrations
+- AI-assisted fixes
 
 ---
 
 ## 13) MVP Acceptance Criteria
-- Upload CSV/XLSX and detect missing required columns
-- Validate against fixed schema with clear issue reporting
-- Edit a single cell and see validation update
-- Apply at least two bulk actions (replace, trim)
-- Export corrected CSV with canonical headers
-- Display “All checks passed” when no blocking issues remain
+
+- Upload CSV/XLSX within size limits
+- Reject oversized files with clear errors
+- Validate against fixed schema
+- Paginate dataset in UI
+- Edit a cell and see validation update
+- Apply bulk column action
+- Export corrected CSV
+- Confirm “All checks passed” state
+- Enforce single active job at all times
