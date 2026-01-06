@@ -24,17 +24,17 @@ This document describes the **high-level architecture** of Databuddy HR (MVP), a
 flowchart LR
   %% Clients
   U[User / Browser] -->|HTTPS| FE[React Frontend]
-  FE -->|REST: /api/*| API[FastAPI Backend]
+  FE -->|REST API| API[FastAPI Backend]
 
   %% Backend internals
-  subgraph API_PROC[FastAPI Process (single active job)]
+  subgraph API_PROC[FastAPI Process - single active job]
     GUARD[Single Active Job Guard]
-    JOB[In-Memory Job State\n(job_id, schema map, issues, stats)]
-    PAG[Pagination Service\n(offset/limit, stable order)]
-    PARSE[Pandas Parser\n(CSV/XLSX)]
-    XFORM[Transforms\n(cell edits, bulk ops)]
-    VAL[Validation Module\n(pure Python rules)]
-    EXP[Export Builder\n(CSV)]
+    JOB[In-memory Job State]
+    PAG[Pagination Service]
+    PARSE[Pandas Parser]
+    XFORM[Transforms]
+    VAL[Validation Module]
+    EXP[Export Builder]
   end
 
   API --> GUARD
@@ -46,26 +46,23 @@ flowchart LR
   API --> EXP
 
   %% Storage
-  subgraph FS[Local File Storage (ephemeral)]
-    UP[(uploads/original.*)]
-    WK[(working/working.csv)]
-    OUT[(exports/output.csv)]
+  subgraph FS[Local File Storage - ephemeral]
+    UP[uploads/original]
+    WK[working/working.csv]
+    OUT[exports/output.csv]
   end
 
   %% Data movement
-  PARSE -->|write original| UP
-  PARSE -->|materialize working| WK
-  XFORM -->|read/modify/write| WK
-  VAL -->|read working (via API)| WK
-  EXP -->|read working| WK
-  EXP -->|write export| OUT
+  PARSE --> UP
+  PARSE --> WK
+  XFORM --> WK
+  VAL --> WK
+  EXP --> WK
+  EXP --> OUT
 
-  %% UI data
-  API -->|Issues + summaries| FE
-  API -->|Rows page (offset/limit)| FE
-  FE -->|Patches (row_id, column, value)| API
-  FE -->|Bulk actions| API
-  FE -->|Download export| API
+  %% UI data flow
+  API --> FE
+  FE --> API
 ```
 
 ---
