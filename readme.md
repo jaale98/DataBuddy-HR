@@ -1,0 +1,1 @@
+![Databuddy HR logo](assets/logo.svg)
