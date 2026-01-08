@@ -61,8 +61,12 @@ Metadata about the current working dataset.
 - `total_rows: number`
 - `total_columns: number`
 - `canonical_columns: string[]` — normalized to your fixed schema names
-- `unknown_columns: string[]` — columns not in schema (warnings; may be droppable)
+- `unknown_columns: string[]` — columns not in schema that were automatically dropped during ingest (reported as warnings)
 - `row_id_column: string` — always `"row_id"`
+
+**Note**
+- Unknown columns are never present in the working dataset.
+- The working dataset contains only `row_id` and `canonical_columns`.
 
 **Sorting guarantee**
 - Rows are served in **original file order** (stable).
@@ -151,7 +155,6 @@ Represents a column-wide or structural transformation.
 - `trim` — trim whitespace
 - `case` — normalize casing
 - `map` — map values by lookup table
-- `drop_unknown_columns` — remove unknown columns
 - `rename_headers` — map uploaded headers to canonical schema headers
 
 ---
@@ -179,7 +182,7 @@ Represents a column-wide or structural transformation.
 
 Where `Row` is a JSON object that always includes:
 - `row_id: string`
-- plus the canonical schema columns (and optionally unknown columns if you decide to surface them)
+- plus the canonical schema columns only (unknown columns are never returned)
 
 ---
 

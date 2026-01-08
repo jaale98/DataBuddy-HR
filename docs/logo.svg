@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="720" height="160" viewBox="0 0 720 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Databuddy HR logo">
+  <!--
+    Super simple, single-color logo.
+    Editables:
+      - Primary color: #111827
+      - Accent color:  #2563EB
+      - Font: system-ui stack (swap to your brand font if desired)
+  -->
+
+  <defs>
+    <style>
+      .wordmark {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        font-weight: 700;
+        letter-spacing: -0.3px;
+      }
+      .subtle {
+        font-weight: 650;
+      }
+    </style>
+  </defs>
+
+  <!-- Icon: "data grid" + check -->
+  <g transform="translate(36 32)">
+    <!-- outer tile -->
+    <rect x="0" y="0" width="96" height="96" rx="20" fill="#111827"/>
+    <!-- grid lines -->
+    <path d="M32 18V78" stroke="white" stroke-opacity="0.28" stroke-width="4" stroke-linecap="round"/>
+    <path d="M64 18V78" stroke="white" stroke-opacity="0.28" stroke-width="4" stroke-linecap="round"/>
+    <path d="M18 32H78" stroke="white" stroke-opacity="0.28" stroke-width="4" stroke-linecap="round"/>
+    <path d="M18 64H78" stroke="white" stroke-opacity="0.28" stroke-width="4" stroke-linecap="round"/>
+    <!-- check mark -->
+    <path d="M28 54L42 68L70 40" stroke="#2563EB" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(156 0)">
+    <text x="0" y="94" class="wordmark" font-size="56" fill="#111827">
+      Databuddy <tspan class="subtle" fill="#2563EB">HR</tspan>
+    </text>
+    <text x="2" y="126" class="wordmark" font-size="18" font-weight="600" fill="#111827" opacity="0.65">
+      HR Data Import Validation
+    </text>
+  </g>
+</svg>
