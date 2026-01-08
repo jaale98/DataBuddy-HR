@@ -69,7 +69,7 @@ Rationale:
 ### Column handling rules
 - Header matching is case-insensitive
 - Canonical column names enforced on export
-- Unknown columns are flagged as warnings with option to drop
+- Unknown columns are automatically dropped during ingest and reported as warnings
 
 ---
 
@@ -143,7 +143,6 @@ Row insertion and deletion are **out of scope** for MVP.
 
 ### Structural actions
 - Map uploaded headers to canonical schema headers
-- Drop unknown columns
 
 No transformation history is persisted beyond process memory.
 
@@ -199,12 +198,13 @@ No database or external storage systems are used in MVP.
 3. Parse into dataframe
 4. Generate `row_id`
 5. Normalize headers
-6. Run full validation
-7. Persist working dataset to disk
-8. User applies edits or bulk actions
-9. Backend applies patches immediately
-10. Full revalidation
-11. Export generates CSV synchronously from working dataset
+6. Identify and drop unknown columns (recorded as warnings)
+7. Run full validation
+8. Persist working dataset to disk
+9. User applies edits or bulk actions
+10. Backend applies patches immediately
+11. Full revalidation
+12. Export generates CSV synchronously from working dataset
 
 ---
 

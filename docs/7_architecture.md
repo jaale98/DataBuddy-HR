@@ -81,6 +81,7 @@ flowchart LR
 - Validate upload constraints (type, **10 MB**, **50k rows**) before processing
 - Parse CSV/XLSX via Pandas
 - Generate stable `row_id` on ingest
+- Identify and automatically drop unknown columns during ingest (reported as warnings)
 - Persist original + working datasets to local disk
 - Apply edits/bulk actions immediately to the working dataset
 - Run **full validation** after each change
@@ -98,7 +99,7 @@ flowchart LR
 
 ### Local File Storage (Ephemeral)
 - Contains only the current job’s artifacts; wiped on process stop or explicit cleanup
-- Recommended directory layout:
+- Recommended directory layout (working dataset contains canonical columns only):
   - `storage/uploads/original.csv|xlsx`
   - `storage/working/working.csv`
   - `storage/exports/output.csv`
@@ -120,6 +121,7 @@ sequenceDiagram
   A->>A: Reject if >10MB or >50k rows
   A->>A: Parse CSV/XLSX (pandas)
   A->>A: Generate stable row_id
+  A->>A: Identify and drop unknown columns (warnings)
   A->>F: Write uploads/original.*
   A->>F: Write working/working.csv
   A->>V: Full validate(working dataframe)
