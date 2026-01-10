@@ -1,0 +1,201 @@
+employee_id,first_name,last_name,date_of_birth,hire_date,employment_status,job_title,work_email,department
+E10000,Isabella,Chen,1972-05-05,2012-05-04,active,Analyst,isabella.chen@company.com,Operations
+E10001,Olivia,Jones,1983-10-08,2012-02-10,active,Engineer,olivia.jones@company.com,Engineering
+E10002,Olivia,Brown,1990-03-23,2019-10-21,leave,Lead,olivia.brown@company.com,People Ops
+E10003,Ethan,Martinez,1994-10-05,2011-12-15,terminated,Analyst,ethan.martinez@company.com,Sales
+E10004,Sophia,Brown,1990-03-23,2024-11-11,terminated,Coordinator,sophia.brown@company.com,Sales
+E10005,Ethan,Nguyen,2003-10-05,2018-02-13,active,Lead,ethan.nguyen@company.com,Finance
+E10006,Lucas,Jones,2000-03-16,2016-02-11,active,Manager,lucas.jones@company.com,People Ops
+E10007,Isabella,Williams,2001-08-04,2019-10-15,terminated,Coordinator,isabella.williams@company.com,Operations
+E10008,Noah,Brown,1989-06-16,2020-11-02,active,Analyst,noah.brown@company.com,HR
+E10009,Liam,Martinez,1993-04-07,2020-06-10,active,Engineer,liam.martinez@company.com,People Ops
+E10010,Sophia,Williams,1983-01-12,2024-09-02,terminated,Analyst,sophia.williams@company.com,People Ops
+E10011,Olivia,Johnson,1985-12-13,2016-07-14,active,Engineer,olivia.johnson@company.com,HR
+E10012,Liam,Brown,1973-03-01,2011-11-01,active,Manager,liam.brown@company.com,People Ops
+E10013,Ethan,Williams,2003-07-20,2012-08-17,active,Specialist,ethan.williams@company.com,Operations
+E10014,Ethan,,1997-05-14,2024-09-19,terminated,Coordinator,ethan.williams@company.com,Finance
+E10015,Ava,Martinez,1998-05-15,2018-02-17,terminated,Engineer,ava.martinez@company.com,Finance
+E10016,Mia,Brown,1999-01-16,2017-09-16,active,Engineer,mia.brown@company.com,People Ops
+E10017,Lucas,Williams,1984-12-26,2019-05-02,terminated,Lead,lucaswilliams-at-company,Sales
+E10018,Isabella,Garcia,1973-09-03,2023-05-09,active,Manager,isabellagarcia-at-company,Operations
+,Sophia,Chen,1993-06-26,2012-05-26,terminated,Lead,sophia.chen@company.com,HR
+E10020,Ethan,Garcia,1996-07-25,2016-04-22,active,Specialist,ethan.garcia@company.com,People Ops
+,Liam,Kim,1995-05-16,2021-09-08,terminated,Specialist,liamkim-at-company,People Ops
+E10022,Emma,,1985-09-22,2010-02-18,terminated,Lead,emma.brown@company.com,Engineering
+E10023,Emma,Martinez,1980-12-22,2019-04-17,terminated,Coordinator,emma.martinez@company.com,People Ops
+E10024,Liam,,1993-06-08,2021-05-09,active,Manager,liam.johnson@company.com,Finance
+,Ava,Martinez,1972-12-04,2011-10-05,active,Specialist,ava.martinez@company.com,People Ops
+E10026,Isabella,Garcia,1982-07-23,2024-11-25,active,Coordinator,isabella.garcia@company.com,Engineering
+E10027,Liam,Patel,1981-03-15,2011-08-07,terminated,Engineer,liampatel-at-company,Sales
+E10028,Liam,Brown,1981-02-02,2011-02-19,active,Lead,liam.brown@company.com,Engineering
+E10029,Ethan,Nguyen,1986-07-19,2010-09-23,terminated,Specialist,ethan.nguyen@company.com,Sales
+E10030,,Williams,2001-09-12,2015-11-10,active,Specialist,emma.williams@company.com,Finance
+E10031,Noah,Johnson,1967-07-22,2013-05-23,terminated,Specialist,noah.johnson@company.com,Finance
+E10032,Lucas,Brown,1980-08-13,2011-09-21,inactive,Coordinator,lucasbrown-at-company,Sales
+,,Brown,1998-08-22,2023-09-05,active,Lead,brown-at-company,Operations
+E10034,Mia,,1980-12-21,2012-01-06,active,Lead,mia.patel@company.com,Finance
+E10035,Sophia,,2003-10-08,2011-04-14,terminated,Coordinator,sophia.patel@company.com,People Ops
+E10036,Emma,Johnson,1967-10-06,2015-02-04,active,Coordinator,emma.johnson@company.com,HR
+E10037,Emma,Garcia,2004-07-25,2012-01-16,terminated,Analyst,emmagarcia-at-company,Finance
+E10038,Ava,Garcia,1995-12-05,2013-03-21,active,Coordinator,ava.garcia@company.com,Operations
+E10039,Ethan,,1970-11-27,2022-05-12,active,Specialist,ethan.williams@company.com,Finance
+E10040,Olivia,Kim,1999-09-08,2017-11-22,active,Manager,olivia.kim@company.com,Engineering
+E10041,Ava,Kim,1967-01-21,2015-05-07,active,Specialist,ava.kim@company.com,Engineering
+,Lucas,Martinez,1996-09-04,2011-04-24,terminated,Specialist,lucas.martinez@company.com,Operations
+E10043,Isabella,Johnson,1971-04-24,2016-04-13,terminated,Manager,isabella.johnson@company.com,Finance
+,Ethan,Martinez,1988-03-15,2021-04-21,terminated,Coordinator,ethan.martinez@company.com,Engineering
+,Mia,Johnson,1991-03-25,2015-04-10,active,Engineer,mia.johnson@company.com,HR
+E10046,Isabella,Garcia,1994-05-01,2021-07-24,active,Manager,isabella.garcia@company.com,HR
+E10047,Lucas,Williams,1967-08-24,2022-09-02,paused,Specialist,lucas.williams@company.com,Operations
+E10048,Emma,Brown,1978-03-12,2014-04-21,active,Analyst,emmabrown-at-company,Finance
+E10049,Ethan,Chen,1973-12-13,2012-06-21,active,Specialist,ethanchen-at-company,People Ops
+E10050,Ava,,2004-09-19,2022-04-26,terminated,Lead,ava.patel@company.com,Finance
+E10051,Isabella,Johnson,1994-10-02,2015-06-06,active,Lead,isabellajohnson-at-company,Operations
+E10052,Noah,Jones,2002-12-07,2022-12-25,active,Manager,noah.jones@company.com,Engineering
+E10053,,Chen,1972-08-23,2018-11-27,terminated,Engineer,lucas.chen@company.com,Engineering
+E10054,Ethan,Martinez,1970-02-13,2024-03-10,leave,Analyst,ethan.martinez@company.com,Finance
+E10055,Liam,Chen,1983-07-22,2018-03-16,active,Coordinator,liam.chen@company.com,Sales
+E10056,,Nguyen,1986-07-19,2015-11-21,terminated,Coordinator,ethan.nguyen@company.com,Sales
+E10057,Isabella,Jones,1979-08-12,2014-01-05,terminated,Coordinator,isabella.jones@company.com,Engineering
+E10058,Ethan,Garcia,1974-03-08,2011-01-11,active,Engineer,ethan.garcia@company.com,HR
+E10059,Ethan,,1988-08-18,2012-09-10,terminated,Analyst,ethan.chen@company.com,Finance
+E10060,Emma,Brown,1997-06-21,2021-05-16,active,Coordinator,emma.brown@company.com,Operations
+E10061,Liam,Martinez,1972-05-01,2016-10-27,terminated,Manager,liammartinez-at-company,Sales
+,Lucas,Patel,1982-04-01,2011-09-28,terminated,Specialist,lucas.patel@company.com,People Ops
+E10063,Noah,Jones,1988-07-05,2021-07-12,terminated,Specialist,noah.jones@company.com,Engineering
+E10064,Ava,Chen,1993-12-14,2022-08-10,terminated,Manager,ava.chen@company.com,People Ops
+E10065,Emma,Williams,1998-06-03,2024-10-25,active,Specialist,emma.williams@company.com,Finance
+E10066,Ava,Williams,1976-07-10,2018-08-02,terminated,Coordinator,ava.williams@company.com,Operations
+E10067,Sophia,Brown,1995-02-21,2020-05-14,terminated,Manager,sophia.brown@company.com,Sales
+E10068,Mia,Nguyen,1995-10-14,2023-05-21,active,Lead,mia.nguyen@company.com,Sales
+E10069,Noah,,1973-06-06,2010-05-12,active,Specialist,noah.johnson@company.com,People Ops
+E10070,Lucas,,1971-10-25,2012-09-11,terminated,Coordinator,lucas.nguyen@company.com,People Ops
+E10071,Sophia,Chen,1988-08-14,2015-03-04,terminated,Manager,sophiachen-at-company,HR
+E10072,Olivia,Kim,2000-12-25,2022-02-14,active,Specialist,olivia.kim@company.com,Finance
+E10073,Noah,Garcia,2003-09-25,2015-03-23,active,Coordinator,noah.garcia@company.com,Finance
+E10074,Noah,Kim,1970-07-23,2022-02-03,active,Analyst,noah.kim@company.com,Sales
+E10075,Emma,Nguyen,1981-01-03,2014-11-01,active,Analyst,emmanguyen-at-company,Finance
+E10076,Isabella,Kim,2002-06-12,2012-09-25,active,Lead,isabella.kim@company.com,Operations
+E10077,Mia,,1983-03-25,2018-01-24,active,Analyst,mia.jones@company.com,HR
+E10078,Olivia,Brown,1989-07-07,2018-04-14,terminated,Analyst,olivia.brown@company.com,Engineering
+E10079,Noah,Brown,1970-06-16,2011-07-10,active,Specialist,noah.brown@company.com,Operations
+E10080,Sophia,Brown,1988-03-01,2020-08-22,leave,Analyst,sophia.brown@company.com,Sales
+E10081,Ethan,Jones,1975-02-12,2013-06-07,active,Engineer,ethan.jones@company.com,Sales
+E10082,Noah,Kim,1990-06-16,2020-10-13,terminated,Specialist,noah.kim@company.com,Operations
+E10083,Sophia,Garcia,1971-12-02,2023-02-16,terminated,Lead,sophia.garcia@company.com,Finance
+E10084,Liam,Williams,1996-08-07,2014-11-16,terminated,Specialist,liamwilliams-at-company,Operations
+E10085,Sophia,,1972-07-15,2015-07-15,terminated,Specialist,sophia.jones@company.com,Finance
+E10086,Ava,Garcia,1972-10-22,2017-11-18,terminated,Lead,ava.garcia@company.com,Operations
+E10087,Isabella,,1989-10-22,2015-05-11,terminated,Analyst,isabella.brown@company.com,Finance
+E10088,Isabella,Nguyen,1986-07-04,2016-06-12,active,Specialist,isabellanguyen-at-company,Engineering
+E10089,Ava,Kim,1972-06-06,2010-09-11,active,Analyst,ava.kim@company.com,Sales
+E10090,Emma,Martinez,1989-06-19,2011-08-04,terminated,Lead,emma.martinez@company.com,People Ops
+E10091,Mia,Johnson,1992-04-16,2020-02-27,terminated,Engineer,mia.johnson@company.com,HR
+E10092,Sophia,Chen,2002-02-19,2015-05-03,active,Engineer,sophia.chen@company.com,Operations
+E10093,,Williams,1999-06-07,2016-07-09,active,Engineer,ethan.williams@company.com,Operations
+E10094,Ethan,Jones,1994-05-21,2018-10-28,active,Specialist,ethan.jones@company.com,Operations
+E10095,Ava,Jones,1992-07-11,2023-02-21,active,Manager,ava.jones@company.com,Sales
+E10096,Sophia,Chen,1980-05-15,2017-09-14,active,Specialist,sophia.chen@company.com,People Ops
+E10097,,Kim,1967-12-16,2022-01-02,active,Analyst,ava.kim@company.com,Engineering
+E10098,Isabella,Chen,1973-04-04,2019-12-17,active,Analyst,isabella.chen@company.com,Operations
+E10099,Isabella,Jones,2002-12-13,2022-12-24,terminated,Manager,isabella.jones@company.com,Sales
+E10100,Mia,Garcia,1996-09-12,2021-02-11,active,Engineer,mia.garcia@company.com,Sales
+E10101,Ethan,Kim,1966-11-20,2010-12-22,terminated,Analyst,ethan.kim@company.com,People Ops
+E10102,Mia,Chen,1980-08-13,2010-07-09,terminated,Coordinator,mia.chen@company.com,Finance
+E10103,Mia,Chen,1991-01-09,2023-02-27,active,Specialist,mia.chen@company.com,Sales
+E10104,Emma,Johnson,1987-07-20,2021-09-24,terminated,Coordinator,emma.johnson@company.com,Sales
+E10105,Ava,Nguyen,1985-10-03,2011-03-08,active,Engineer,ava.nguyen@company.com,People Ops
+E10106,Liam,Martinez,2002-06-26,2014-04-03,terminated,Specialist,liam.martinez@company.com,Engineering
+E10107,Liam,Williams,2004-11-08,2024-02-15,terminated,Manager,liam.williams@company.com,Engineering
+E10108,Liam,Nguyen,2001-02-01,2021-09-14,terminated,Specialist,liam.nguyen@company.com,People Ops
+E10109,Ethan,Patel,1996-07-05,2016-04-20,active,Manager,ethan.patel@company.com,Engineering
+E10110,Mia,Williams,1980-06-19,2020-11-15,active,Analyst,mia.williams@company.com,Finance
+E10111,Ethan,Garcia,2003-05-03,2011-09-02,terminated,Analyst,ethan.garcia@company.com,Engineering
+E10112,Mia,Brown,1967-01-09,2018-10-13,terminated,Coordinator,mia.brown@company.com,Sales
+E10113,Lucas,Garcia,1973-02-11,2021-09-14,active,Manager,lucas.garcia@company.com,Engineering
+E10114,Noah,Johnson,1992-05-09,2019-05-17,active,Coordinator,noah.johnson@company.com,Sales
+E10115,Liam,Johnson,1968-04-05,2010-04-06,terminated,Analyst,liam.johnson@company.com,Sales
+E10116,Sophia,Garcia,2000-08-15,2017-02-28,terminated,Lead,sophiagarcia-at-company,HR
+E10117,Noah,Johnson,2001-11-19,2013-10-01,active,Engineer,noah.johnson@company.com,Operations
+E10118,Liam,Williams,1972-07-12,2019-02-27,active,Coordinator,liam.williams@company.com,HR
+E10119,Ava,Patel,1965-06-02,2020-10-15,terminated,Coordinator,ava.patel@company.com,People Ops
+E10120,Isabella,Garcia,2000-10-13,2011-07-09,active,Manager,isabella.garcia@company.com,HR
+E10121,Emma,Patel,1974-02-10,2017-07-24,active,Coordinator,emma.patel@company.com,People Ops
+E10122,Isabella,Garcia,1995-05-19,2019-07-03,terminated,Specialist,isabella.garcia@company.com,Engineering
+E10123,Isabella,Garcia,1974-08-17,2020-11-17,terminated,Analyst,isabella.garcia@company.com,Engineering
+E10124,Ethan,Williams,1980-09-14,2014-10-02,active,Engineer,ethan.williams@company.com,Finance
+E10125,Ava,Jones,1987-05-19,2011-09-01,active,Analyst,ava.jones@company.com,People Ops
+E10126,,Garcia,1994-11-15,2019-05-11,active,Manager,ethan.garcia@company.com,HR
+E10127,Liam,Patel,1975-11-16,2017-12-13,terminated,Lead,liampatel-at-company,People Ops
+E10128,Isabella,Brown,1990-05-03,2012-03-01,terminated,Manager,isabella.brown@company.com,Finance
+E10129,Ava,Kim,1999-04-03,2014-08-05,active,Specialist,ava.kim@company.com,Sales
+E10130,Ava,Patel,2002-04-07,2014-10-27,leave,Specialist,ava.patel@company.com,Finance
+E10131,Lucas,Nguyen,2003-12-18,2014-01-16,active,Specialist,lucas.nguyen@company.com,Sales
+E10132,,,1982-11-14,2024-08-04,terminated,Specialist,olivia.martinez@company.com,Operations
+,Lucas,Brown,1979-10-22,2015-10-28,terminated,Lead,lucas.brown@company.com,People Ops
+E10134,Ethan,Garcia,1988-08-26,2023-03-20,terminated,Manager,ethan.garcia@company.com,Engineering
+E10135,Noah,Brown,1996-05-08,2013-09-02,active,Analyst,noah.brown@company.com,Engineering
+E10136,Sophia,Johnson,1972-10-08,2011-09-08,active,Specialist,sophia.johnson@company.com,Engineering
+E10137,Lucas,Johnson,2003-11-04,2021-01-15,active,Specialist,lucas.johnson@company.com,Finance
+E10138,,Martinez,1988-03-24,2014-12-15,active,Engineer,noah.martinez@company.com,Sales
+E10139,Noah,Garcia,1965-04-27,2022-08-11,terminated,Coordinator,noah.garcia@company.com,Operations
+E10140,Liam,Patel,1998-07-26,2013-03-26,terminated,Specialist,liam.patel@company.com,Sales
+E10141,Emma,Brown,1969-02-11,2015-07-25,terminated,Manager,emma.brown@company.com,Sales
+E10142,Ava,Williams,1998-05-14,2016-11-23,active,Engineer,avawilliams-at-company,Engineering
+E10143,Lucas,Johnson,1978-09-20,2022-10-21,active,Specialist,lucas.johnson@company.com,People Ops
+E10144,Lucas,Williams,1973-09-18,2014-04-03,active,Engineer,lucas.williams@company.com,Operations
+E10145,Sophia,,1980-05-24,2016-09-04,terminated,Lead,sophia.jones@company.com,Finance
+E10146,Lucas,Chen,1965-08-11,2013-12-19,terminated,Engineer,lucas.chen@company.com,People Ops
+E10147,Olivia,Martinez,1989-09-24,2013-02-11,active,Engineer,olivia.martinez@company.com,Operations
+E10148,Mia,Johnson,1995-04-15,2011-06-22,paused,Engineer,mia.johnson@company.com,Sales
+E10149,Isabella,Jones,1996-12-14,2023-03-05,terminated,Engineer,isabella.jones@company.com,HR
+E10150,Ethan,Brown,1967-12-06,2018-06-04,active,Engineer,ethan.brown@company.com,Sales
+E10151,,Patel,1984-05-16,2010-03-05,terminated,Engineer,noah.patel@company.com,Sales
+E10152,Ava,Chen,1967-07-16,2019-05-19,terminated,Specialist,ava.chen@company.com,Engineering
+E10153,Emma,Brown,1985-02-26,2019-11-20,active,Specialist,emma.brown@company.com,Sales
+E10154,Mia,Williams,1975-12-01,2019-11-26,terminated,Lead,mia.williams@company.com,Engineering
+E10155,Olivia,Patel,1977-08-17,2024-01-04,active,Lead,oliviapatel-at-company,Operations
+E10156,Liam,Nguyen,1999-10-11,2016-10-02,terminated,Specialist,liam.nguyen@company.com,Finance
+E10157,Lucas,Williams,1971-09-06,2014-03-06,active,Coordinator,lucas.williams@company.com,Finance
+E10158,,Chen,1984-07-04,2015-03-14,terminated,Coordinator,liam.chen@company.com,Engineering
+E10159,Emma,Patel,1989-02-09,2010-06-15,active,Engineer,emma.patel@company.com,Sales
+E10160,Noah,Brown,1971-04-25,2018-11-26,active,Manager,noah.brown@company.com,Engineering
+E10161,Isabella,Williams,1975-04-18,2016-09-15,terminated,Analyst,isabella.williams@company.com,Finance
+E10162,Ethan,,1981-11-13,2015-11-07,terminated,Engineer,ethan.martinez@company.com,Operations
+E10163,Sophia,Nguyen,1973-12-18,2014-07-07,active,Engineer,sophia.nguyen@company.com,Operations
+E10164,Lucas,Johnson,1978-08-20,2015-01-23,terminated,Manager,lucas.johnson@company.com,People Ops
+,,Martinez,1996-07-18,2011-11-21,terminated,Analyst,ava.martinez@company.com,Operations
+E10166,Ava,Brown,1965-02-15,2015-04-15,active,Analyst,ava.brown@company.com,HR
+E10167,Ava,Chen,1996-06-02,2014-08-23,terminated,Lead,ava.chen@company.com,Operations
+E10168,Mia,Nguyen,1975-09-07,2020-12-19,active,Lead,mia.nguyen@company.com,People Ops
+,Isabella,,1979-09-24,2022-05-07,active,Lead,isabella.martinez@company.com,Finance
+E10170,Olivia,,1968-06-14,2023-07-09,terminated,Analyst,olivia.martinez@company.com,People Ops
+E10171,Olivia,Brown,1991-09-15,2015-01-13,terminated,Manager,olivia.brown@company.com,Engineering
+E10172,Noah,Martinez,1977-03-11,2014-02-21,active,Lead,noah.martinez@company.com,Finance
+E10173,Ava,Brown,1971-08-08,2015-01-27,terminated,Coordinator,ava.brown@company.com,Operations
+E10174,Mia,Patel,1989-06-28,2021-02-26,paused,Manager,mia.patel@company.com,Finance
+E10175,Ethan,Nguyen,1990-02-20,2022-07-08,leave,Engineer,ethannguyen-at-company,People Ops
+E10176,Isabella,Nguyen,1966-08-17,2015-10-07,terminated,Analyst,isabella.nguyen@company.com,Finance
+E10177,Ava,Martinez,1987-07-16,2021-10-15,active,Manager,ava.martinez@company.com,HR
+E10178,Liam,Nguyen,2002-09-25,2012-03-16,active,Coordinator,liam.nguyen@company.com,Operations
+E10179,Lucas,Chen,2000-01-14,2015-04-07,terminated,Lead,lucas.chen@company.com,HR
+E10180,Noah,Johnson,2002-10-11,2019-05-14,active,Coordinator,noah.johnson@company.com,HR
+E10181,Noah,Brown,1978-04-16,2021-06-26,active,Lead,noah.brown@company.com,Sales
+E10182,,,1974-05-15,2013-11-19,active,Coordinator,mia.williams@company.com,Finance
+E10183,Ava,Kim,1980-03-07,2010-03-27,active,Coordinator,ava.kim@company.com,Finance
+E10184,Ava,Garcia,1988-06-22,2012-09-26,terminated,Engineer,ava.garcia@company.com,Sales
+E10185,Noah,Patel,1985-10-14,2020-04-02,active,Engineer,noah.patel@company.com,Operations
+E10186,Mia,,1997-10-16,2013-12-03,terminated,Specialist,mia.jones@company.com,People Ops
+E10187,Isabella,Patel,1994-03-11,2021-06-17,active,Lead,isabella.patel@company.com,Sales
+E10188,Ethan,Brown,1977-08-28,2013-07-07,terminated,Coordinator,ethan.brown@company.com,Sales
+E10189,Emma,Martinez,1993-09-12,2013-10-02,active,Specialist,emma.martinez@company.com,Operations
+E10190,Isabella,Johnson,1966-03-15,2013-05-21,terminated,Analyst,isabella.johnson@company.com,Engineering
+E10191,Noah,Chen,1986-04-22,2015-05-10,paused,Lead,noahchen-at-company,People Ops
+E10192,Sophia,Kim,1983-06-26,2016-07-27,leave,Engineer,sophia.kim@company.com,People Ops
+E10193,Ava,Brown,2002-09-25,2017-12-27,active,Specialist,ava.brown@company.com,Engineering
+E10194,Noah,Johnson,1966-06-05,2019-03-10,active,Lead,noah.johnson@company.com,Finance
+E10195,Ethan,Johnson,1984-06-19,2010-10-26,terminated,Analyst,ethan.johnson@company.com,HR
+E10196,Liam,Johnson,1971-06-19,2017-11-10,terminated,Analyst,liam.johnson@company.com,HR
+,Noah,Jones,1983-04-08,2014-11-17,leave,Analyst,noah.jones@company.com,Sales
+E10198,Ava,Johnson,1999-07-16,2021-02-13,active,Manager,ava.johnson@company.com,HR
+E10199,Mia,Chen,1977-09-23,2020-08-09,terminated,Manager,mia.chen@company.com,Finance

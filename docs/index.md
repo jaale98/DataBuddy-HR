@@ -13,3 +13,7 @@ This index lists all project documentation in recommended reading order.
 - [Data Model](8_data_model.md)
 - [Validation Rules Matrix](9_validation_rules_matrix.xlsx)
 - [API Contract](10_api_contract.md)
+- [User Flows](11_user_flows.md)
+- [Error UX Guidelines](12_error_ux_guidelines.md)
+- [Acceptance Criteria](13_acceptance_criteria.md)
+- [Test Plan](14_test_plan.md)

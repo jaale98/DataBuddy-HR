@@ -5,6 +5,13 @@ from threading import Lock
 @dataclass
 class JobState:
     job_id: str
+    status: str
+    created_at: str
+    schema_version: str
+    limits: dict[str, int]
+    dataset: dict[str, object] | None
+    validation: dict[str, object] | None
+    issues: list[dict[str, object]]
 
 
 _lock = Lock()
@@ -16,9 +23,8 @@ def get_active_job() -> JobState | None:
         return _active_job
 
 
-def set_active_job(job_id: str) -> JobState:
+def set_active_job(state: JobState) -> JobState:
     with _lock:
-        state = JobState(job_id=job_id)
         global _active_job
         _active_job = state
         return state
