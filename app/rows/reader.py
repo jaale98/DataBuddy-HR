@@ -29,8 +29,6 @@ def read_rows_page(
             if filtered_count >= offset and len(rows) < limit:
                 rows.append(_row_payload(row, canonical_columns))
             filtered_count += 1
-            if len(rows) >= limit and filtered_count >= offset + limit:
-                break
     return rows, filtered_count
 
 

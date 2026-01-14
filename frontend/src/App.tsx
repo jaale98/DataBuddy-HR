@@ -53,7 +53,9 @@ export default function App() {
       setLoading(true);
       setError(null);
       getRows(job.job_id, offset, limit, filters)
-        .then((data) => setRows(data))
+        .then((data) => {
+          setRows(data);
+        })
         .catch((err) => handleError(err, setError, () => resetJob(setJob, setView)))
         .finally(() => setLoading(false));
     }
@@ -252,19 +254,23 @@ export default function App() {
 
         {view === "issues" && job && <IssuesView issues={issues} />}
 
-        {view === "rows" && job && (
-          <RowsView
-            rows={rows}
-            columns={canonicalColumns}
-            issues={issues}
-            offset={offset}
-            limit={limit}
-            total={rows?.total_filtered ?? rows?.total_rows ?? 0}
-            filters={filters}
-            onFilterChange={(next) => {
-              setFilters(next);
-              setOffset(0);
-            }}
+      {view === "rows" && job && (
+        <RowsView
+          rows={rows}
+          columns={canonicalColumns}
+          issues={issues}
+          offset={offset}
+          limit={limit}
+          total={
+            rows
+              ? rows.total_filtered ?? rows.total_rows ?? rows.rows.length
+              : 0
+          }
+          filters={filters}
+          onFilterChange={(next) => {
+            setFilters(next);
+            setOffset(0);
+          }}
             onCellEdit={handleSingleEdit}
             onBulkMap={handleBulkMap}
             disabled={loading}
