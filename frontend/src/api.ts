@@ -1,5 +1,11 @@
 import type { Issue, JobState, RowsResponse } from "./types";
 
+export type RowFilter = {
+  column: string;
+  op: "eq" | "neq" | "contains" | "is_null";
+  value?: string | null;
+};
+
 type ApiErrorPayload = {
   error: string;
   message: string;
@@ -52,9 +58,13 @@ export async function getIssues(jobId: string): Promise<Issue[]> {
 export async function getRows(
   jobId: string,
   offset: number,
-  limit: number
+  limit: number,
+  filters: RowFilter[] = []
 ): Promise<RowsResponse> {
   const params = new URLSearchParams({ offset: String(offset), limit: String(limit) });
+  if (filters.length) {
+    params.set("filters", JSON.stringify(filters));
+  }
   return request<RowsResponse>(`/api/jobs/${jobId}/rows?${params.toString()}`);
 }
 
@@ -73,17 +83,35 @@ export async function applyEdit(
 
 export async function applyBulkMap(
   jobId: string,
-  column: string,
-  defaultValue: string
+  payload: {
+    column: string;
+    apply_to?: "all" | "missing" | "errors";
+    mapping?: Record<string, string | null>;
+    defaultValue?: string;
+    replaceFrom?: string;
+    replaceTo?: string;
+  }
 ): Promise<{ validation: JobState["validation"]; issues: Issue[] }> {
+  const { column, apply_to, mapping, defaultValue, replaceFrom, replaceTo } = payload;
+  const useReplace = replaceFrom !== undefined && replaceFrom !== "";
+  const body = useReplace
+    ? {
+        action_type: "replace",
+        column,
+        apply_to,
+        params: { from: replaceFrom, to: replaceTo ?? "" },
+      }
+    : {
+        action_type: "map",
+        column,
+        apply_to,
+        params: { mapping: mapping ?? {}, default: defaultValue ?? "" },
+      };
+
   return request(`/api/jobs/${jobId}/bulk`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      action_type: "map",
-      column,
-      params: { mapping: {}, default: defaultValue },
-    }),
+    body: JSON.stringify(body),
   });
 }
 

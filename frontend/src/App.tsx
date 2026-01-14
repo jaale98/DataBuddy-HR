@@ -23,6 +23,9 @@ export default function App() {
   const [rows, setRows] = useState<RowsResponse | null>(null);
   const [offset, setOffset] = useState(0);
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
+  const [filters, setFilters] = useState<
+    { column: string; op: "eq" | "neq" | "contains" | "is_null"; value?: string }[]
+  >([]);
   const [error, setError] = useState<{ status?: number; message: string } | null>(
     null
   );
@@ -49,7 +52,7 @@ export default function App() {
     if (view === "rows" && job) {
       setLoading(true);
       setError(null);
-      getRows(job.job_id, offset, limit)
+      getRows(job.job_id, offset, limit, filters)
         .then((data) => setRows(data))
         .catch((err) => handleError(err, setError, () => resetJob(setJob, setView)))
         .finally(() => setLoading(false));
@@ -130,7 +133,7 @@ export default function App() {
         setIssues(result.issues);
       }
       if (view === "rows") {
-        const updated = await getRows(job.job_id, offset, limit);
+        const updated = await getRows(job.job_id, offset, limit, filters);
         setRows(updated);
       }
     } catch (err) {
@@ -140,12 +143,19 @@ export default function App() {
     }
   };
 
-  const handleBulkMap = async (column: string, defaultValue: string) => {
+  const handleBulkMap = async (payload: {
+    column: string;
+    apply_to?: "all" | "missing" | "errors";
+    mapping?: Record<string, string | null>;
+    defaultValue?: string;
+    replaceFrom?: string;
+    replaceTo?: string;
+  }) => {
     if (!job) return;
     setLoading(true);
     setError(null);
     try {
-      const result = await applyBulkMap(job.job_id, column, defaultValue);
+      const result = await applyBulkMap(job.job_id, payload);
       setJob((current) =>
         current
           ? { ...current, validation: result.validation ?? null, issues: result.issues }
@@ -155,7 +165,7 @@ export default function App() {
         setIssues(result.issues);
       }
       if (view === "rows") {
-        const updated = await getRows(job.job_id, offset, limit);
+        const updated = await getRows(job.job_id, offset, limit, filters);
         setRows(updated);
       }
     } catch (err) {
@@ -241,7 +251,12 @@ export default function App() {
           issues={issues}
           offset={offset}
           limit={limit}
-          total={rows?.total_rows ?? 0}
+          total={rows?.total_filtered ?? rows?.total_rows ?? 0}
+          filters={filters}
+          onFilterChange={(next) => {
+            setFilters(next);
+            setOffset(0);
+          }}
           onCellEdit={handleSingleEdit}
           onBulkMap={handleBulkMap}
           disabled={loading}
@@ -397,6 +412,8 @@ function RowsView({
   offset,
   limit,
   total,
+  filters,
+  onFilterChange,
   onCellEdit,
   onBulkMap,
   disabled,
@@ -410,8 +427,19 @@ function RowsView({
   offset: number;
   limit: number;
   total: number;
+  filters: { column: string; op: "eq" | "neq" | "contains" | "is_null"; value?: string }[];
+  onFilterChange: (
+    next: { column: string; op: "eq" | "neq" | "contains" | "is_null"; value?: string }[]
+  ) => void;
   onCellEdit: (rowId: string, column: string, value: string) => void;
-  onBulkMap: (column: string, defaultValue: string) => void;
+  onBulkMap: (payload: {
+    column: string;
+    apply_to?: "all" | "missing" | "errors";
+    mapping?: Record<string, string | null>;
+    defaultValue?: string;
+    replaceFrom?: string;
+    replaceTo?: string;
+  }) => void;
   disabled: boolean;
   onPrev: () => void;
   onNext: () => void;
@@ -423,14 +451,26 @@ function RowsView({
   const [expanded, setExpanded] = useState<{ value: string; label: string } | null>(
     null
   );
-  const [showErrorsOnly, setShowErrorsOnly] = useState(false);
-  const [showWarningsOnly, setShowWarningsOnly] = useState(false);
+  const [filterColumn, setFilterColumn] = useState(columns[0] ?? "");
+  const [filterOp, setFilterOp] = useState<"eq" | "neq" | "contains" | "is_null">(
+    "eq"
+  );
+  const [filterValue, setFilterValue] = useState("");
+  const [bulkScope, setBulkScope] = useState<"all" | "missing" | "errors">("all");
+  const [replaceFrom, setReplaceFrom] = useState("");
+  const [replaceTo, setReplaceTo] = useState("");
 
   useEffect(() => {
     if (columns.length && !columns.includes(column)) {
       setColumn(columns[0]);
     }
   }, [columns, column]);
+
+  useEffect(() => {
+    if (columns.length && !columns.includes(filterColumn)) {
+      setFilterColumn(columns[0]);
+    }
+  }, [columns, filterColumn]);
 
   useEffect(() => {
     setLocalEdits({});
@@ -445,34 +485,7 @@ function RowsView({
     return map;
   }, [issues]);
 
-  const rowIssueSet = useMemo(() => {
-    const errors = new Set<string>();
-    const warnings = new Set<string>();
-    for (const issue of issues) {
-      if (!issue.row_id) continue;
-      if (issue.severity === "error") {
-        errors.add(issue.row_id);
-      } else {
-        warnings.add(issue.row_id);
-      }
-    }
-    return { errors, warnings };
-  }, [issues]);
-
-  const visibleRows = useMemo(() => {
-    if (!rows) return [];
-    if (!showErrorsOnly && !showWarningsOnly) return rows.rows;
-    const wantedErrors = showErrorsOnly;
-    const wantedWarnings = showWarningsOnly;
-    return rows.rows.filter((row) => {
-      const rowId = row.row_id as string;
-      const hasError = rowIssueSet.errors.has(rowId);
-      const hasWarning = rowIssueSet.warnings.has(rowId);
-      if (wantedErrors && wantedWarnings) return hasError || hasWarning;
-      if (wantedErrors) return hasError;
-      return hasWarning;
-    });
-  }, [rows, showErrorsOnly, showWarningsOnly, rowIssueSet]);
+  const visibleRows = rows?.rows ?? [];
 
   const handleChange = (rowId: string, col: string, value: string) => {
     setLocalEdits((prev) => ({ ...prev, [`${rowId}:${col}`]: value }));
@@ -502,7 +515,14 @@ function RowsView({
           onSubmit={(event) => {
             event.preventDefault();
             if (column) {
-              onBulkMap(column, defaultValue);
+              onBulkMap({
+                column,
+                apply_to: bulkScope,
+                mapping: replaceFrom ? { [replaceFrom]: replaceTo } : {},
+                defaultValue: defaultValue || undefined,
+                replaceFrom: replaceFrom || undefined,
+                replaceTo: replaceTo || undefined,
+              });
             }
           }}
         >
@@ -519,6 +539,36 @@ function RowsView({
                 </option>
               ))}
             </select>
+          </label>
+          <label>
+            Scope
+            <select
+              value={bulkScope}
+              onChange={(event) =>
+                setBulkScope(event.target.value as typeof bulkScope)
+              }
+              disabled={disabled}
+            >
+              <option value="all">All rows</option>
+              <option value="missing">Missing only</option>
+              <option value="errors">Errors only</option>
+            </select>
+          </label>
+          <label>
+            Replace from
+            <input
+              value={replaceFrom}
+              onChange={(e) => setReplaceFrom(e.target.value)}
+              disabled={disabled}
+            />
+          </label>
+          <label>
+            Replace to
+            <input
+              value={replaceTo}
+              onChange={(e) => setReplaceTo(e.target.value)}
+              disabled={disabled}
+            />
           </label>
           <label>
             Default value
@@ -554,24 +604,73 @@ function RowsView({
             ))}
           </select>
         </label>
-        <label className="checkbox">
-          <input
-            type="checkbox"
-            checked={showErrorsOnly}
-            onChange={(event) => setShowErrorsOnly(event.target.checked)}
+        <div className="filter-bar">
+          <label>
+            Filter column
+            <select
+              value={filterColumn}
+              onChange={(event) => setFilterColumn(event.target.value)}
+              disabled={disabled}
+            >
+              {columns.map((col) => (
+                <option key={col} value={col}>
+                  {col}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Op
+            <select
+              value={filterOp}
+              onChange={(event) =>
+                setFilterOp(event.target.value as typeof filterOp)
+              }
+              disabled={disabled}
+            >
+              <option value="eq">equals</option>
+              <option value="neq">not equal</option>
+              <option value="contains">contains</option>
+              <option value="is_null">is empty</option>
+            </select>
+          </label>
+          {filterOp !== "is_null" && (
+            <label>
+              Value
+              <input
+                value={filterValue}
+                onChange={(event) => setFilterValue(event.target.value)}
+                disabled={disabled}
+              />
+            </label>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (!filterColumn) return;
+              const next = [
+                {
+                  column: filterColumn,
+                  op: filterOp,
+                  value: filterOp === "is_null" ? undefined : filterValue,
+                },
+              ];
+              onFilterChange(next);
+            }}
             disabled={disabled}
-          />
-          Errors only
-        </label>
-        <label className="checkbox">
-          <input
-            type="checkbox"
-            checked={showWarningsOnly}
-            onChange={(event) => setShowWarningsOnly(event.target.checked)}
-            disabled={disabled}
-          />
-          Warnings only
-        </label>
+          >
+            Apply filter
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onFilterChange([]);
+            }}
+            disabled={disabled || filters.length === 0}
+          >
+            Clear
+          </button>
+        </div>
       </div>
       {rows ? (
         <div className="table-wrap">

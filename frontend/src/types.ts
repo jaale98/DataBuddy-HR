@@ -36,5 +36,6 @@ export type RowsResponse = {
   offset: number;
   limit: number;
   total_rows: number;
+  total_filtered?: number;
   rows: Record<string, string | null>[];
 };

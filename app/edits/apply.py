@@ -40,9 +40,13 @@ def apply_bulk_map(
     column: str,
     mapping: dict[str, object],
     default: object | None,
+    apply_to: str = "all",
+    error_rows: set[str] | None = None,
+    case_insensitive: bool = False,
 ) -> None:
     temp_path = working_path.with_suffix(".tmp")
     default_value = "" if default is None else str(default)
+    normalized_mapping = _normalize_mapping(mapping, case_insensitive)
 
     with working_path.open("r", newline="", encoding="utf-8") as in_file, temp_path.open(
         "w", newline="", encoding="utf-8"
@@ -51,11 +55,43 @@ def apply_bulk_map(
         writer = csv.DictWriter(out_file, fieldnames=reader.fieldnames or [])
         writer.writeheader()
         for row in reader:
-            current = row.get(column, "")
-            if current in mapping:
-                row[column] = "" if mapping[current] is None else str(mapping[current])
+            current = row.get(column, "") or ""
+            if not _eligible_for_bulk(row, column, current, apply_to, error_rows):
+                writer.writerow(row)
+                continue
+            lookup_value = current.lower() if case_insensitive else current
+            if lookup_value in normalized_mapping:
+                mapped = normalized_mapping[lookup_value]
+                row[column] = "" if mapped is None else str(mapped)
             elif default is not None:
                 row[column] = default_value
             writer.writerow(row)
 
     os.replace(temp_path, working_path)
+
+
+def _normalize_mapping(
+    mapping: dict[str, object], case_insensitive: bool
+) -> dict[str, object]:
+    if not case_insensitive:
+        return mapping
+    return {str(key).lower(): value for key, value in mapping.items()}
+
+
+def _eligible_for_bulk(
+    row: dict[str, str],
+    column: str,
+    current: str,
+    apply_to: str,
+    error_rows: set[str] | None,
+) -> bool:
+    if apply_to == "all":
+        return True
+    if apply_to == "missing":
+        return current.strip() == ""
+    if apply_to == "errors":
+        if not error_rows:
+            return False
+        row_id = row.get("row_id")
+        return bool(row_id and row_id in error_rows)
+    return False

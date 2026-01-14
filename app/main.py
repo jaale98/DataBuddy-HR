@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
+import json
 import shutil
 
 from fastapi import Body, FastAPI, File, Response, UploadFile, status
@@ -21,7 +22,7 @@ from app.core.storage import (
 )
 from app.edits.apply import apply_bulk_map, apply_single_edit
 from app.ingest.ingest import IngestError, ingest_file
-from app.rows.reader import read_rows_page
+from app.rows.reader import RowFilter, read_rows_page
 from app.validation.validate import validate_working_csv
 
 
@@ -169,7 +170,12 @@ def get_job_issues(job_id: str) -> JSONResponse:
 
 
 @app.get("/api/jobs/{job_id}/rows")
-def get_job_rows(job_id: str, offset: int, limit: int) -> JSONResponse:
+def get_job_rows(
+    job_id: str,
+    offset: int,
+    limit: int,
+    filters: str | None = None,
+) -> JSONResponse:
     if offset < 0 or limit <= 0:
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -201,13 +207,26 @@ def get_job_rows(job_id: str, offset: int, limit: int) -> JSONResponse:
         )
     dataset = metadata.get("dataset") or {}
     canonical_columns = list(dataset.get("canonical_columns") or [])
-    rows = read_rows_page(working_path, canonical_columns, offset, limit)
+    filter_items = _parse_filters(filters, canonical_columns)
+    if filter_items is None:
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={
+                "error": "invalid_filters",
+                "message": "Invalid filters.",
+                "details": {},
+            },
+        )
+    rows, total_filtered = read_rows_page(
+        working_path, canonical_columns, offset, limit, filter_items
+    )
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
             "offset": offset,
             "limit": limit,
             "total_rows": dataset.get("total_rows", 0),
+            "total_filtered": total_filtered,
             "rows": rows,
         },
     )
@@ -303,9 +322,15 @@ def apply_bulk(job_id: str, payload: dict = Body(...)) -> JSONResponse:
     action_type = payload.get("action_type") if isinstance(payload, dict) else None
     column = payload.get("column") if isinstance(payload, dict) else None
     params = payload.get("params") if isinstance(payload, dict) else None
+    apply_to = payload.get("apply_to") if isinstance(payload, dict) else "all"
+    case_insensitive = (
+        payload.get("case_insensitive") if isinstance(payload, dict) else False
+    )
 
-    if action_type != "map" or not column or not isinstance(params, dict):
+    if action_type not in {"map", "replace"} or not column or not isinstance(params, dict):
         return _invalid_bulk("Bulk action rejected: invalid payload.", {})
+    if apply_to not in {"all", "missing", "errors"}:
+        return _invalid_bulk("Bulk action rejected: invalid apply_to.", {})
 
     dataset = metadata.get("dataset") or {}
     canonical_columns = list(dataset.get("canonical_columns") or [])
@@ -314,10 +339,19 @@ def apply_bulk(job_id: str, payload: dict = Body(...)) -> JSONResponse:
             f"Bulk action rejected: unknown column '{column}'.", {"column": column}
         )
 
-    mapping = params.get("mapping") or {}
-    if not isinstance(mapping, dict):
-        return _invalid_bulk("Bulk action rejected: invalid mapping.", {})
-    default = params.get("default") if "default" in params else None
+    mapping: dict[str, object] = {}
+    default = None
+    if action_type == "map":
+        mapping = params.get("mapping") or {}
+        if not isinstance(mapping, dict):
+            return _invalid_bulk("Bulk action rejected: invalid mapping.", {})
+        default = params.get("default") if "default" in params else None
+    if action_type == "replace":
+        replace_from = params.get("from")
+        replace_to = params.get("to")
+        if replace_from is None:
+            return _invalid_bulk("Bulk action rejected: invalid replacement.", {})
+        mapping = {str(replace_from): replace_to}
 
     working_path = working_csv_path(SETTINGS.storage_root, job_id)
     if not working_path.exists():
@@ -330,7 +364,26 @@ def apply_bulk(job_id: str, payload: dict = Body(...)) -> JSONResponse:
             },
         )
 
-    apply_bulk_map(working_path, column, mapping, default)
+    error_rows: set[str] | None = None
+    if apply_to == "errors":
+        issues = read_validation_issues(SETTINGS.storage_root, job_id) or []
+        error_rows = {
+            issue_row
+            for issue in issues
+            if issue.get("severity") == "error"
+            and issue.get("column") == column
+            and (issue_row := issue.get("row_id"))
+        }
+
+    apply_bulk_map(
+        working_path,
+        column,
+        mapping,
+        default,
+        apply_to=apply_to or "all",
+        error_rows=error_rows,
+        case_insensitive=bool(case_insensitive),
+    )
 
     validation_result = validate_working_csv(working_path)
     metadata["validation"] = validation_result.summary
@@ -355,6 +408,34 @@ def _invalid_bulk(message: str, details: dict) -> JSONResponse:
             "details": details,
         },
     )
+
+
+def _parse_filters(
+    raw_filters: str | None, canonical_columns: list[str]
+) -> list[RowFilter] | None:
+    if raw_filters is None or raw_filters == "":
+        return []
+    try:
+        parsed = json.loads(raw_filters)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(parsed, list):
+        return None
+    filters: list[RowFilter] = []
+    for item in parsed:
+        if not isinstance(item, dict):
+            return None
+        column = item.get("column")
+        op = item.get("op")
+        value = item.get("value")
+        if column not in canonical_columns:
+            return None
+        if op not in {"eq", "neq", "contains", "is_null"}:
+            return None
+        if op != "is_null" and value is None:
+            return None
+        filters.append(RowFilter(column=column, op=op, value=value))
+    return filters
 
 
 @app.get("/api/jobs/{job_id}/export", response_model=None)

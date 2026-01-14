@@ -95,6 +95,13 @@ nav button {
   align-items: center;
 }
 
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+}
+
 .form {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

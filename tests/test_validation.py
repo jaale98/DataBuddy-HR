@@ -161,3 +161,95 @@ def test_bulk_invalid_column_returns_422(tmp_path, monkeypatch) -> None:
     payload = bulk_response.json()
     assert payload["error"] == "invalid_bulk"
     job_store.clear_active_job()
+
+
+def test_bulk_missing_only_sets_blanks(tmp_path, monkeypatch) -> None:
+    client = _make_client(tmp_path, monkeypatch)
+    csv_body = (
+        "employee_id,first_name,last_name,work_email,employment_status\n"
+        "E10001,,Nguyen,ava@company.com,active\n"
+        "E10002,Ava,Patel,noah@company.com,active\n"
+    )
+    create_response = client.post(
+        "/api/jobs",
+        files={"file": ("test.csv", csv_body, "text/csv")},
+    )
+    assert create_response.status_code == 201
+    job_id = create_response.json()["job_id"]
+
+    bulk_response = client.post(
+        f"/api/jobs/{job_id}/bulk",
+        json={
+            "action_type": "map",
+            "column": "first_name",
+            "apply_to": "missing",
+            "params": {"mapping": {}, "default": "Ava"},
+        },
+    )
+    assert bulk_response.status_code == 200
+    rows_response = client.get(f"/api/jobs/{job_id}/rows", params={"offset": 0, "limit": 2})
+    rows = rows_response.json()["rows"]
+    assert rows[0]["first_name"] == "Ava"
+    assert rows[1]["first_name"] == "Ava"
+    job_store.clear_active_job()
+
+
+def test_bulk_errors_only_sets_error_rows(tmp_path, monkeypatch) -> None:
+    client = _make_client(tmp_path, monkeypatch)
+    csv_body = (
+        "employee_id,first_name,last_name,work_email,employment_status\n"
+        "E10001,,Nguyen,ava@company.com,active\n"
+        "E10002,Ava,Patel,noah@company.com,active\n"
+    )
+    create_response = client.post(
+        "/api/jobs",
+        files={"file": ("test.csv", csv_body, "text/csv")},
+    )
+    assert create_response.status_code == 201
+    job_id = create_response.json()["job_id"]
+
+    bulk_response = client.post(
+        f"/api/jobs/{job_id}/bulk",
+        json={
+            "action_type": "map",
+            "column": "first_name",
+            "apply_to": "errors",
+            "params": {"mapping": {}, "default": "Fixed"},
+        },
+    )
+    assert bulk_response.status_code == 200
+    rows_response = client.get(f"/api/jobs/{job_id}/rows", params={"offset": 0, "limit": 2})
+    rows = rows_response.json()["rows"]
+    assert rows[0]["first_name"] == "Fixed"
+    assert rows[1]["first_name"] == "Ava"
+    job_store.clear_active_job()
+
+
+def test_bulk_replace_mapping(tmp_path, monkeypatch) -> None:
+    client = _make_client(tmp_path, monkeypatch)
+    csv_body = (
+        "employee_id,first_name,last_name,work_email,employment_status\n"
+        "E10001,Ava,Nguyen,ava@company.com,terminated\n"
+        "E10002,Ava,Patel,noah@company.com,active\n"
+    )
+    create_response = client.post(
+        "/api/jobs",
+        files={"file": ("test.csv", csv_body, "text/csv")},
+    )
+    assert create_response.status_code == 201
+    job_id = create_response.json()["job_id"]
+
+    bulk_response = client.post(
+        f"/api/jobs/{job_id}/bulk",
+        json={
+            "action_type": "replace",
+            "column": "employment_status",
+            "params": {"from": "terminated", "to": "active"},
+        },
+    )
+    assert bulk_response.status_code == 200
+    rows_response = client.get(f"/api/jobs/{job_id}/rows", params={"offset": 0, "limit": 2})
+    rows = rows_response.json()["rows"]
+    assert rows[0]["employment_status"] == "active"
+    assert rows[1]["employment_status"] == "active"
+    job_store.clear_active_job()
