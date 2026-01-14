@@ -57,7 +57,7 @@ export default function App() {
         .catch((err) => handleError(err, setError, () => resetJob(setJob, setView)))
         .finally(() => setLoading(false));
     }
-  }, [view, job, offset, limit]);
+  }, [view, job, offset, limit, filters]);
 
   useEffect(() => {
     if (view === "rows" && job) {
@@ -196,78 +196,87 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <div className="header-brand">
-          <img src="/logo.svg" alt="Databuddy HR logo" />
-          <div>
-            <h1>Databuddy HR</h1>
-            <p>Upload, validate, and export HR census files.</p>
+      <div className="bg">
+        <span className="blob blob-1" />
+        <span className="blob blob-2" />
+        <span className="grid-pattern" />
+      </div>
+
+      <div className="app-shell">
+        <header className="header">
+          <div className="header-brand">
+            <img src="/logo.svg" alt="Databuddy HR logo" />
+            <div>
+              <p className="eyebrow">Databuddy HR</p>
+              <h1>Clean up employee census data fast.</h1>
+              <p className="subtitle">
+                Upload, review issues, and export a corrected CSV in minutes.
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="header-meta">
-          <div className="status-pill">
-            {job ? `Job status: ${job.status}` : "No active job"}
+          <div className="header-meta">
+            <div className="status-pill">
+              {job ? `Job status: ${job.status}` : "No active job"}
+            </div>
+            {job && (
+              <nav>
+                <button onClick={() => setView("overview")}>Overview</button>
+                <button onClick={() => setView("issues")}>Issues</button>
+                <button onClick={() => setView("rows")}>Rows</button>
+              </nav>
+            )}
           </div>
-          {job && (
-            <nav>
-              <button onClick={() => setView("overview")}>Overview</button>
-              <button onClick={() => setView("issues")}>Issues</button>
-              <button onClick={() => setView("rows")}>Rows</button>
-            </nav>
-          )}
-        </div>
-      </header>
+        </header>
 
-      {error && (
-        <div className="alert">
-          <strong>{error.status ?? "Error"}:</strong> {error.message}
-        </div>
-      )}
-      {loading && <div className="status">Loading…</div>}
-      {exporting && <div className="status">Exporting…</div>}
+        {error && (
+          <div className="alert">
+            <strong>{error.status ?? "Error"}:</strong> {error.message}
+          </div>
+        )}
+        {loading && <div className="status">Loading…</div>}
+        {exporting && <div className="status">Exporting…</div>}
 
-      {view === "upload" && (
-        <UploadView onUpload={handleUpload} disabled={loading} />
-      )}
+        {view === "upload" && (
+          <UploadView onUpload={handleUpload} disabled={loading} />
+        )}
 
-      {view === "overview" && job && (
-        <OverviewView
-          job={job}
-          onRefresh={refreshJob}
-          onDelete={handleDelete}
-          onExport={handleExport}
-          disabled={loading || exporting}
-        />
-      )}
+        {view === "overview" && job && (
+          <OverviewView
+            job={job}
+            onRefresh={refreshJob}
+            onDelete={handleDelete}
+            onExport={handleExport}
+            disabled={loading || exporting}
+          />
+        )}
 
-      {view === "issues" && job && (
-        <IssuesView issues={issues} />
-      )}
+        {view === "issues" && job && <IssuesView issues={issues} />}
 
-      {view === "rows" && job && (
-        <RowsView
-          rows={rows}
-          columns={canonicalColumns}
-          issues={issues}
-          offset={offset}
-          limit={limit}
-          total={rows?.total_filtered ?? rows?.total_rows ?? 0}
-          filters={filters}
-          onFilterChange={(next) => {
-            setFilters(next);
-            setOffset(0);
-          }}
-          onCellEdit={handleSingleEdit}
-          onBulkMap={handleBulkMap}
-          disabled={loading}
-          onPrev={() => setOffset(Math.max(0, offset - limit))}
-          onNext={() => setOffset(offset + limit)}
-          onLimitChange={(value) => {
-            setLimit(value);
-            setOffset(0);
-          }}
-        />
-      )}
+        {view === "rows" && job && (
+          <RowsView
+            rows={rows}
+            columns={canonicalColumns}
+            issues={issues}
+            offset={offset}
+            limit={limit}
+            total={rows?.total_filtered ?? rows?.total_rows ?? 0}
+            filters={filters}
+            onFilterChange={(next) => {
+              setFilters(next);
+              setOffset(0);
+            }}
+            onCellEdit={handleSingleEdit}
+            onBulkMap={handleBulkMap}
+            disabled={loading}
+            onPrev={() => setOffset(Math.max(0, offset - limit))}
+            onNext={() => setOffset(offset + limit)}
+            onLimitChange={(value) => {
+              setLimit(value);
+              setOffset(0);
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -456,6 +465,9 @@ function RowsView({
     "eq"
   );
   const [filterValue, setFilterValue] = useState("");
+  const [issueScope, setIssueScope] = useState<
+    "all" | "errors" | "warnings" | "both"
+  >("all");
   const [bulkScope, setBulkScope] = useState<"all" | "missing" | "errors">("all");
   const [replaceFrom, setReplaceFrom] = useState("");
   const [replaceTo, setReplaceTo] = useState("");
@@ -473,6 +485,12 @@ function RowsView({
   }, [columns, filterColumn]);
 
   useEffect(() => {
+    if (filterOp === "is_null") {
+      setFilterValue("");
+    }
+  }, [filterOp]);
+
+  useEffect(() => {
     setLocalEdits({});
   }, [rows]);
 
@@ -485,7 +503,33 @@ function RowsView({
     return map;
   }, [issues]);
 
-  const visibleRows = rows?.rows ?? [];
+  const rowIssueSet = useMemo(() => {
+    const errors = new Set<string>();
+    const warnings = new Set<string>();
+    for (const issue of issues) {
+      if (!issue.row_id) continue;
+      if (filterColumn && issue.column !== filterColumn) continue;
+      if (issue.severity === "error") {
+        errors.add(issue.row_id);
+      } else {
+        warnings.add(issue.row_id);
+      }
+    }
+    return { errors, warnings };
+  }, [issues, filterColumn]);
+
+  const visibleRows = useMemo(() => {
+    if (!rows) return [];
+    if (issueScope === "all") return rows.rows;
+    return rows.rows.filter((row) => {
+      const rowId = row.row_id as string;
+      const hasError = rowIssueSet.errors.has(rowId);
+      const hasWarning = rowIssueSet.warnings.has(rowId);
+      if (issueScope === "errors") return hasError;
+      if (issueScope === "warnings") return hasWarning;
+      return hasError || hasWarning;
+    });
+  }, [rows, issueScope, rowIssueSet]);
 
   const handleChange = (rowId: string, col: string, value: string) => {
     setLocalEdits((prev) => ({ ...prev, [`${rowId}:${col}`]: value }));
@@ -644,6 +688,21 @@ function RowsView({
               />
             </label>
           )}
+          <label>
+            Issues
+            <select
+              value={issueScope}
+              onChange={(event) =>
+                setIssueScope(event.target.value as typeof issueScope)
+              }
+              disabled={disabled}
+            >
+              <option value="all">All rows</option>
+              <option value="errors">Errors only</option>
+              <option value="warnings">Warnings only</option>
+              <option value="both">Errors + warnings</option>
+            </select>
+          </label>
           <button
             type="button"
             onClick={() => {
@@ -665,6 +724,10 @@ function RowsView({
             type="button"
             onClick={() => {
               onFilterChange([]);
+              setIssueScope("all");
+              setFilterOp("eq");
+              setFilterValue("");
+              setFilterColumn(columns[0] ?? "");
             }}
             disabled={disabled || filters.length === 0}
           >
